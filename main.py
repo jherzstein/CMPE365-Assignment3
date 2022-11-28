@@ -174,14 +174,15 @@ def buildTriangles( slice0, slice1 ):
     #
     # [1 mark] 
 
-    smallestDist = 
+    smallestDist = -1
 
     # [YOUR CODE HERE]
-    for v0 in slice0.verts:
-        for v1 in slice1.verts:
+    for v0 in range(len(slice0.verts)):
+        for v1 in range(len(slice1.verts)):
             dist = distance( v0, v1 )
-            if dist < smallestDist:
+            if dist < smallestDist or smallestDist = -1:
                 smallestDist = dist
+
 
                 
 
