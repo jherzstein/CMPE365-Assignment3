@@ -164,8 +164,9 @@ class Dir(enum.Enum): # for storing directions of min-area
 def buildTriangles( slice0, slice1 ):
 
     def distance ( v0, v1 ):
+        diff = []
         for i in range (0,2):
-            diff[i] =(v0.coords[i] - v1.coords[i]) ** 2 
+            diff.append((v0.coords[i] - v1.coords[i]) ** 2)
         dist = math.sqrt(sum(int(i) for i in diff))
         return dist
     # Find the closest pair of vertices (one from each slice) to start with.
@@ -173,19 +174,26 @@ def buildTriangles( slice0, slice1 ):
     # This can be done with "brute force" if you wish.
     #
     # [1 mark] 
-
-    smallestDist = -1
+    diff = []
+    dist = []
+    smallestDist = sys.maxsize
 
     # [YOUR CODE HERE]
-    for v0 in range(len(slice0.verts)):
-        for v1 in range(len(slice1.verts)):
-            dist = distance( v0, v1 )
-            if dist < smallestDist or smallestDist = -1:
-                smallestDist = dist
-
+    i = 0
+    sd_vertices = [0, 0]
+    for v0 in slice0.verts:
+        for v1 in slice1.verts:
+            diff.append(subtract(v0, v1))
+            for v in range(2):
+                diff[i][v] = diff[i][v] ** 2
+            dist = math.sqrt(sum(int(x) for x in diff))
+            if smallestDist != min(smallestDist, dist):
+                smallestDist = min(smallestDist, dist)
+                sd_vertices = [v0, v1]
+            i += 1
+        i = 1
 
                 
-
     # Make a cyclic permutation of the vertices of each slice,
     # that starts at the closest vertex in each slice found above.
     #
@@ -193,7 +201,7 @@ def buildTriangles( slice0, slice1 ):
     # triangulation ends up on the same edge as it started.
     #
     # [1 mark]
-
+    smallestDist 
 
     # [YOUR CODE HERE]
 
