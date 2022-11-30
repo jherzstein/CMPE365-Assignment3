@@ -201,10 +201,16 @@ def buildTriangles( slice0, slice1 ):
     # triangulation ends up on the same edge as it started.
     #
     # [1 mark]
-    smallestDist 
 
     # [YOUR CODE HERE]
 
+    slice0Perm = []
+    slice0Perm.extend(slice0.verts[sd_vertices[v0]:])
+    slice0Perm.extend(slice0.verts[:sd_vertices[v0] + 1])
+    
+    slice1Perm = []
+    slice1Perm.extend(slice1.verts[sd_vertices[v1]:])
+    slice1Perm.extend(slice1.verts[:sd_vertices[v1] + 1])
 
     # Set up the 'minArea' array.  The first dimension (rows) of the
     # array corresponds to vertices in slice1.  The second dimension
@@ -221,8 +227,8 @@ def buildTriangles( slice0, slice1 ):
     # [YOUR CODE HERE]
 
 
-    minArea = [[None]] # CHANGE THIS
-    minDir  = [[None]] # CHANGE THIS
+    minArea = [[0 for i in range (len(slice0Perm))] for j in range(len(slice1Perm))]] # CHANGE THIS
+    minDir  = [[None for i in range (len(slice0Perm))] for j in range(len(slice1Perm))]] # CHANGE THIS
 
 
     # Fill in the minArea array
@@ -232,7 +238,7 @@ def buildTriangles( slice0, slice1 ):
     # Fill in row 0 of minArea and minDir, since it's a special case as there's no row -1
     #
     # [2 marks]
-
+    for i in range (1, len(slice0Perm)):
 
     # [YOUR CODE HERE]
 
