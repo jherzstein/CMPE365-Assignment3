@@ -163,36 +163,47 @@ class Dir(enum.Enum): # for storing directions of min-area
 
 def buildTriangles( slice0, slice1 ):
 
-    # Get area between 3 vertices
-    def getArea(v1, v2, v3):
-
-        # Start by getting the cross product array of both combinations, then sqrt(...^2) / 2 gives the area
-        res = crossProduct(subtract(v1.coords, v2.coords), subtract(v1.coords, v3.coords))
-        return (((res[0] ** 2) + (res[1] ** 2) + (res[2] ** 2)) ** 0.5) / 2
+    # Get the distance between 2 vertices
+    def distance(v0, v1):
+        sub_v = subtract(v0.coords, v1.coords)
+        return round((sub_v[0]**2 + sub_v[1]**2 + sub_v[2]**2)**0.5)
 
     # Find the closest pair of vertices (one from each slice) to start with.
     #
     # This can be done with "brute force" if you wish.
     #
     # [1 mark] 
-    diff = []
-    dist = []
-    smallestDist = sys.maxsize
+    # diff = []
+    # dist = []
+    # smallestDist = sys.maxsize
 
+    # i = 0
+    # sd_vertices = [0, 0]
+    # for v0 in slice0.verts:
+    #     for v1 in slice1.verts:
+    #         diff.append(subtract(v0.coords, v1.coords))
+    #         dist = 0
+    #         for v in range(2):
+    #             dist += diff[i][v] ** 2
+    #         dist = dist ** 0.5
+    #         if smallestDist != min(smallestDist, dist):
+    #             smallestDist = min(smallestDist, dist)
+    #             sd_vertices = [v0, v1]
+    #         i += 1
+    #     i = 1
     i = 0
-    sd_vertices = [0, 0]
+    sd_vertices = [0,0]
+    smallestDist = sys.maxsize
     for v0 in slice0.verts:
+        j = 0
         for v1 in slice1.verts:
-            diff.append(subtract(v0.coords, v1.coords))
-            dist = 0
-            for v in range(2):
-                dist += diff[i][v] ** 2
-            dist = dist ** 0.5
-            if smallestDist != min(smallestDist, dist):
-                smallestDist = min(smallestDist, dist)
-                sd_vertices = [v0, v1]
-            i += 1
-        i = 1
+            d = distance(v0, v1)
+            if (d < smallestDist):
+                smallestDist = d
+                sd_vertices = [slice0.verts[i], slice1.verts[j]]
+            j += 1
+        i += 1
+
 
                 
     # Make a cyclic permutation of the vertices of each slice,
@@ -224,27 +235,20 @@ def buildTriangles( slice0, slice1 ):
 
     # Fill in row 0 of minArea and minDir, since it's a special case as there's no row -1
     for i in range (1, len(slice0Perm)):
-        if i == 1:
-            minArea[0][i] = getArea(slice0Perm[i-1], slice1Perm[0], slice0Perm[i])
-        else:
-            minArea[0][i] = getArea(slice0Perm[i-1], slice1Perm[0], slice0Perm[i]) + minArea[0][i-1]
+        minArea[0][i] = triangleArea(slice0Perm[i-1].coords, slice1Perm[0].coords, slice0Perm[i].coords) + minArea[0][i-1]
         minDir[0][i] = Dir.PREV_COL
 
     # Fill in col 0 of minArea and minDir, since it's a special case as there's no col -1
     for i in range (1, len(slice1Perm)):
-        
-        if i == 1:
-            minArea[i][0] = getArea(slice0Perm[0], slice1Perm[i-1], slice1Perm[i])
-        else:
-            minArea[i][0] = getArea(slice0Perm[0], slice1Perm[i-1], slice1Perm[i]) + minArea[i-1][0]
+        minArea[i][0] = triangleArea(slice0Perm[0].coords, slice1Perm[i-1].coords, slice1Perm[i].coords) + minArea[i-1][0]
         minDir[i][0] = Dir.PREV_ROW
 
     # Fill in the remaining entries of minArea and minDir.  This is very similar to the above, but more general.
     for i in range(1, len(slice1Perm)):
         for j in range(1, len(slice0Perm)):
             # First calculate above and left areas
-            area_above  = getArea(slice0Perm[j], slice0Perm[j-1], slice1Perm[i])
-            area_left = getArea(slice1Perm[i], slice0Perm[j], slice0Perm[j-1])
+            area_above  = triangleArea(slice0Perm[j].coords, slice0Perm[j-1].coords, slice1Perm[i].coords)
+            area_left = triangleArea(slice1Perm[i].coords, slice0Perm[j].coords, slice0Perm[j-1].coords)
             curr_a_above = area_above + minArea[i-1][j]
             curr_a_left = area_left + minArea[i][j-1]
 
