@@ -232,7 +232,7 @@ def buildTriangles( slice0, slice1 ):
 
     # Fill in row 0 of minArea and minDir, since it's a special case as there's no row -1
     for i in range (1, len(slice0Perm)):
-        
+
         minDir[0][i] = Dir.PREV_ROW
 
     # Fill in col 0 of minArea and minDir, since it's a special case as there's no col -1
@@ -287,10 +287,6 @@ def buildTriangles( slice0, slice1 ):
     # is strongly recommended.
     #
     # [0 marks]
-
-    for i in range(len(minArea)):
-        for j in range(len(minArea)):
-            print(minArea[i][j], " ")
 
     # [YOUR CODE HERE, OPTIONALLY]
 
