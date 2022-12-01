@@ -242,10 +242,10 @@ def buildTriangles( slice0, slice1 ):
     for i in range (1, len(slice1Perm)):
         
         if i == 1:
-            minArea[0][i] = getArea(slice0Perm[0], slice1Perm[i-1], slice1Perm[i])
+            minArea[i][0] = getArea(slice0Perm[0], slice1Perm[i-1], slice1Perm[i])
         else:
-            minArea[0][i] = getArea(slice0Perm[i-1], slice1Perm[0], slice1Perm[i]) + minArea[i-1][0]
-        minDir[0][i] = Dir.PREV_ROW
+            minArea[i][0] = getArea(slice0Perm[0], slice1Perm[i-1], slice1Perm[i]) + minArea[i-1][0]
+        minDir[i][0] = Dir.PREV_ROW
 
     # Fill in the remaining entries of minArea and minDir.  This is very similar to the above, but more general.
     for i in range(1, len(slice1Perm)):
