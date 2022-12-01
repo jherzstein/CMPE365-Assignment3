@@ -163,14 +163,6 @@ class Dir(enum.Enum): # for storing directions of min-area
 
 def buildTriangles( slice0, slice1 ):
 
-    # Get distance between 2 points
-    def distance ( v0, v1 ):
-        diff = []
-        for i in range (0,2):
-            diff.append((v0.coords[i] - v1.coords[i]) ** 2)
-        dist = math.sqrt(sum(int(i) for i in diff))
-        return dist
-
     # Get area between 3 vertices
     def getArea(v1, v2, v3):
 
@@ -317,7 +309,22 @@ def buildTriangles( slice0, slice1 ):
     triangles = []
 
 
-    # [YOUR CODE HERE]
+    # length of the row and column, starting at the end
+    row = len(slice1Perm) - 1
+    col = len(slice0Perm) - 1
+
+    # As long as we still have entries in the table
+    while (row >= 0 and col >= 0):
+        # If we should move left
+        if (minDir[row][col] == Dir.PREV_COL):
+            triangles.append(
+                Triangle([slice0Perm[col], slice1Perm[row], slice0Perm[col-1]]))
+            col -= 1
+        else:
+            # We move up
+            triangles.append(
+                Triangle([slice0Perm[col], slice1Perm[row], slice1Perm[row-1]]))
+            row -= 1
 
 
     # Return a list of the triangles that you constructed
