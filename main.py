@@ -224,8 +224,8 @@ def buildTriangles( slice0, slice1 ):
     # Dir.PREV_COL in each entry [r][c], depending on whether the
     # min-area triangulation ending at [r][c] came from the previous
     # row or previous column.
-    minArea = [[0 for i in range(len(slice0Perm))] for j in range(len(slice1Perm))] # CHANGE THIS
-    minDir  = [[None for i in range(len(slice0Perm))] for j in range(len(slice1Perm))] # CHANGE THIS
+    minArea = [[0 for i in range(len(slice0Perm))] for j in range(len(slice1Perm))]
+    minDir  = [[None for i in range(len(slice0Perm))] for j in range(len(slice1Perm))]
 
     # Fill in the minArea array
     minArea[0][0] = 0 # Starting edge has zero area
@@ -242,7 +242,21 @@ def buildTriangles( slice0, slice1 ):
     for i in range(1, len(slice1Perm)):
         for j in range(1, len(slice0Perm)):
             # First calculate above and left areas
-            area_above  = area(slice0Perm[j], )
+            area_above  = getArea(slice0Perm[j], slice0Perm[j-1], slice1Perm[i])
+            area_left = getArea(slice1Perm[i], slice0Perm[j], slice0Perm[j-1])
+            curr_a_above = area_above + minArea[i-1][j]
+            curr_a_left = area_left + minArea[i][j-1]
+
+            tot_a = area_above + curr_a_above
+            tot_l = area_left + curr_a_left
+
+            # We're moving from above
+            if tot_l > tot_a:
+                minArea[i][j], minDir[i][j] = tot_a, Dir.PREV_ROW
+            # We're moving from the left
+            else:
+                minArea[i][j], minDir[i][j] = tot_l, Dir.PREV_COL
+
 
 
     # It's useful for debugging at this point to print out the minArea
