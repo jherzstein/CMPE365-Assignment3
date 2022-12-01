@@ -163,12 +163,21 @@ class Dir(enum.Enum): # for storing directions of min-area
 
 def buildTriangles( slice0, slice1 ):
 
+    # Get distance between 2 points
     def distance ( v0, v1 ):
         diff = []
         for i in range (0,2):
             diff.append((v0.coords[i] - v1.coords[i]) ** 2)
         dist = math.sqrt(sum(int(i) for i in diff))
         return dist
+
+    # Get area between 3 vertices
+    def getArea(v1, v2, v3):
+
+        # Start by getting the cross product array of both combinations, then sqrt(...^2) / 2 gives the area
+        res = crossProduct(subtract(v1.coords, v2.coords), subtract(v1.coords, v3.coords))
+        return (((res[0] ** 2) + (res[1] ** 2) + (res[2] ** 2)) ** 0.5) / 2
+
     # Find the closest pair of vertices (one from each slice) to start with.
     #
     # This can be done with "brute force" if you wish.
@@ -199,11 +208,6 @@ def buildTriangles( slice0, slice1 ):
     #
     # ADD THE FIRST VERTEX TO THE END of the vertices, so that the
     # triangulation ends up on the same edge as it started.
-    #
-    # [1 mark]
-
-    # [YOUR CODE HERE]
-
     slice0Perm = []
     slice0Perm.extend(slice0.verts[sd_vertices[v0]:])
     slice0Perm.extend(slice0.verts[:sd_vertices[v0] + 1])
@@ -220,45 +224,25 @@ def buildTriangles( slice0, slice1 ):
     # Dir.PREV_COL in each entry [r][c], depending on whether the
     # min-area triangulation ending at [r][c] came from the previous
     # row or previous column.
-    #
-    # [1 mark]
-
-
-    # [YOUR CODE HERE]
-
-
     minArea = [[0 for i in range(len(slice0Perm))] for j in range(len(slice1Perm))] # CHANGE THIS
     minDir  = [[None for i in range(len(slice0Perm))] for j in range(len(slice1Perm))] # CHANGE THIS
 
-
     # Fill in the minArea array
-
     minArea[0][0] = 0 # Starting edge has zero area
 
     # Fill in row 0 of minArea and minDir, since it's a special case as there's no row -1
-    #
-    # [2 marks]
-
-    # [YOUR CODE HERE]
-
     for i in range (1, len(slice0Perm)):
         minDir[0][i] = Dir.PREV_ROW
 
     # Fill in col 0 of minArea and minDir, since it's a special case as there's no col -1
-    #
-    # [2 marks]
-    
-    # [YOUR CODE HERE]
-
     for i in range (1, len(slice1Perm)):
         minDir[0][i] = Dir.PREV_ROW
 
     # Fill in the remaining entries of minArea and minDir.  This is very similar to the above, but more general.
-    #
-    # [2 marks]
-
-
-    # [YOUR CODE HERE]
+    for i in range(1, len(slice1Perm)):
+        for j in range(1, len(slice0Perm)):
+            # First calculate above and left areas
+            area_above  = area(slice0Perm[j], )
 
 
     # It's useful for debugging at this point to print out the minArea
