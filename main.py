@@ -187,15 +187,15 @@ def buildTriangles( slice0, slice1 ):
     dist = []
     smallestDist = sys.maxsize
 
-    # [YOUR CODE HERE]
     i = 0
     sd_vertices = [0, 0]
     for v0 in slice0.verts:
         for v1 in slice1.verts:
-            diff.append(subtract(v0, v1))
+            diff.append(subtract(v0.coords, v1.coords))
+            dist = 0
             for v in range(2):
-                diff[i][v] = diff[i][v] ** 2
-            dist = math.sqrt(sum(int(x) for x in diff))
+                dist += diff[i][v] ** 2
+            dist = dist ** 0.5
             if smallestDist != min(smallestDist, dist):
                 smallestDist = min(smallestDist, dist)
                 sd_vertices = [v0, v1]
@@ -209,12 +209,12 @@ def buildTriangles( slice0, slice1 ):
     # ADD THE FIRST VERTEX TO THE END of the vertices, so that the
     # triangulation ends up on the same edge as it started.
     slice0Perm = []
-    slice0Perm.extend(slice0.verts[sd_vertices[v0]:])
-    slice0Perm.extend(slice0.verts[:sd_vertices[v0] + 1])
+    slice0Perm.extend(slice0.verts[slice0.verts.index(sd_vertices[0]):])
+    slice0Perm.extend(slice0.verts[:slice0.verts.index(sd_vertices[0]) + 1])
     
     slice1Perm = []
-    slice1Perm.extend(slice1.verts[sd_vertices[v1]:])
-    slice1Perm.extend(slice1.verts[:sd_vertices[v1] + 1])
+    slice1Perm.extend(slice1.verts[slice1.verts.index(sd_vertices[1]):])
+    slice1Perm.extend(slice1.verts[:slice1.verts.index(sd_vertices[1]) + 1])
 
     # Set up the 'minArea' array.  The first dimension (rows) of the
     # array corresponds to vertices in slice1.  The second dimension
@@ -232,11 +232,12 @@ def buildTriangles( slice0, slice1 ):
 
     # Fill in row 0 of minArea and minDir, since it's a special case as there's no row -1
     for i in range (1, len(slice0Perm)):
+        
         minDir[0][i] = Dir.PREV_ROW
 
     # Fill in col 0 of minArea and minDir, since it's a special case as there's no col -1
     for i in range (1, len(slice1Perm)):
-        minDir[0][i] = Dir.PREV_ROW
+        minDir[i][0] = Dir.PREV_ROW
 
     # Fill in the remaining entries of minArea and minDir.  This is very similar to the above, but more general.
     for i in range(1, len(slice1Perm)):
@@ -287,6 +288,9 @@ def buildTriangles( slice0, slice1 ):
     #
     # [0 marks]
 
+    for i in range(len(minArea)):
+        for j in range(len(minArea)):
+            print(minArea[i][j], " ")
 
     # [YOUR CODE HERE, OPTIONALLY]
 
