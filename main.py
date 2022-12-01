@@ -163,35 +163,47 @@ class Dir(enum.Enum): # for storing directions of min-area
 
 def buildTriangles( slice0, slice1 ):
 
-    def distance ( v0, v1 ):
-        diff = []
-        for i in range (0,2):
-            diff.append((v0.coords[i] - v1.coords[i]) ** 2)
-        dist = math.sqrt(sum(int(i) for i in diff))
-        return dist
+    # Get the distance between 2 vertices
+    def distance(v0, v1):
+        sub_v = subtract(v0.coords, v1.coords)
+        return round((sub_v[0]**2 + sub_v[1]**2 + sub_v[2]**2)**0.5)
+
     # Find the closest pair of vertices (one from each slice) to start with.
     #
     # This can be done with "brute force" if you wish.
     #
     # [1 mark] 
-    diff = []
-    dist = []
-    smallestDist = sys.maxsize
+    # diff = []
+    # dist = []
+    # smallestDist = sys.maxsize
 
-    # [YOUR CODE HERE]
+    # i = 0
+    # sd_vertices = [0, 0]
+    # for v0 in slice0.verts:
+    #     for v1 in slice1.verts:
+    #         diff.append(subtract(v0.coords, v1.coords))
+    #         dist = 0
+    #         for v in range(2):
+    #             dist += diff[i][v] ** 2
+    #         dist = dist ** 0.5
+    #         if smallestDist != min(smallestDist, dist):
+    #             smallestDist = min(smallestDist, dist)
+    #             sd_vertices = [v0, v1]
+    #         i += 1
+    #     i = 1
     i = 0
-    sd_vertices = [0, 0]
+    sd_vertices = [0,0]
+    smallestDist = sys.maxsize
     for v0 in slice0.verts:
+        j = 0
         for v1 in slice1.verts:
-            diff.append(subtract(v0, v1))
-            for v in range(2):
-                diff[i][v] = diff[i][v] ** 2
-            dist = math.sqrt(sum(int(x) for x in diff))
-            if smallestDist != min(smallestDist, dist):
-                smallestDist = min(smallestDist, dist)
-                sd_vertices = [v0, v1]
-            i += 1
-        i = 1
+            d = distance(v0, v1)
+            if (d < smallestDist):
+                smallestDist = d
+                sd_vertices = [slice0.verts[i], slice1.verts[j]]
+            j += 1
+        i += 1
+
 
                 
     # Make a cyclic permutation of the vertices of each slice,
@@ -199,18 +211,13 @@ def buildTriangles( slice0, slice1 ):
     #
     # ADD THE FIRST VERTEX TO THE END of the vertices, so that the
     # triangulation ends up on the same edge as it started.
-    #
-    # [1 mark]
-
-    # [YOUR CODE HERE]
-
     slice0Perm = []
-    slice0Perm.extend(slice0.verts[sd_vertices[v0]:])
-    slice0Perm.extend(slice0.verts[:sd_vertices[v0] + 1])
+    slice0Perm.extend(slice0.verts[slice0.verts.index(sd_vertices[0]):])
+    slice0Perm.extend(slice0.verts[:slice0.verts.index(sd_vertices[0]) + 1])
     
     slice1Perm = []
-    slice1Perm.extend(slice1.verts[sd_vertices[v1]:])
-    slice1Perm.extend(slice1.verts[:sd_vertices[v1] + 1])
+    slice1Perm.extend(slice1.verts[slice1.verts.index(sd_vertices[1]):])
+    slice1Perm.extend(slice1.verts[:slice1.verts.index(sd_vertices[1]) + 1])
 
     # Set up the 'minArea' array.  The first dimension (rows) of the
     # array corresponds to vertices in slice1.  The second dimension
@@ -220,45 +227,41 @@ def buildTriangles( slice0, slice1 ):
     # Dir.PREV_COL in each entry [r][c], depending on whether the
     # min-area triangulation ending at [r][c] came from the previous
     # row or previous column.
-    #
-    # [1 mark]
-
-
-    # [YOUR CODE HERE]
-
-
-    minArea = [[0 for i in range(len(slice0Perm))] for j in range(len(slice1Perm))] # CHANGE THIS
-    minDir  = [[None for i in range(len(slice0Perm))] for j in range(len(slice1Perm))] # CHANGE THIS
-
+    minArea = [[0 for i in range(len(slice0Perm))] for j in range(len(slice1Perm))]
+    minDir  = [[None for i in range(len(slice0Perm))] for j in range(len(slice1Perm))]
 
     # Fill in the minArea array
-
     minArea[0][0] = 0 # Starting edge has zero area
 
     # Fill in row 0 of minArea and minDir, since it's a special case as there's no row -1
-    #
-    # [2 marks]
-
-    # [YOUR CODE HERE]
-
     for i in range (1, len(slice0Perm)):
-        minDir[0][i] = Dir.PREV_ROW
+        minArea[0][i] = triangleArea(slice0Perm[i-1].coords, slice1Perm[0].coords, slice0Perm[i].coords) + minArea[0][i-1]
+        minDir[0][i] = Dir.PREV_COL
 
     # Fill in col 0 of minArea and minDir, since it's a special case as there's no col -1
-    #
-    # [2 marks]
-    
-    # [YOUR CODE HERE]
-
     for i in range (1, len(slice1Perm)):
-        minDir[0][i] = Dir.PREV_ROW
+        minArea[i][0] = triangleArea(slice0Perm[0].coords, slice1Perm[i-1].coords, slice1Perm[i].coords) + minArea[i-1][0]
+        minDir[i][0] = Dir.PREV_ROW
 
     # Fill in the remaining entries of minArea and minDir.  This is very similar to the above, but more general.
-    #
-    # [2 marks]
+    for i in range(1, len(slice1Perm)):
+        for j in range(1, len(slice0Perm)):
+            # First calculate above and left areas
+            area_above  = triangleArea(slice0Perm[j].coords, slice0Perm[j-1].coords, slice1Perm[i].coords)
+            area_left = triangleArea(slice1Perm[i].coords, slice0Perm[j].coords, slice0Perm[j-1].coords)
+            curr_a_above = area_above + minArea[i-1][j]
+            curr_a_left = area_left + minArea[i][j-1]
 
+            tot_a = area_above + curr_a_above
+            tot_l = area_left + curr_a_left
 
-    # [YOUR CODE HERE]
+            # We're moving from above
+            if tot_l > tot_a:
+                minArea[i][j], minDir[i][j] = tot_a, Dir.PREV_ROW
+            # We're moving from the left
+            else:
+                minArea[i][j], minDir[i][j] = tot_l, Dir.PREV_COL
+
 
 
     # It's useful for debugging at this point to print out the minArea
@@ -289,7 +292,6 @@ def buildTriangles( slice0, slice1 ):
     #
     # [0 marks]
 
-
     # [YOUR CODE HERE, OPTIONALLY]
 
     
@@ -311,7 +313,22 @@ def buildTriangles( slice0, slice1 ):
     triangles = []
 
 
-    # [YOUR CODE HERE]
+    # length of the row and column, starting at the end
+    row = len(slice1Perm) - 1
+    col = len(slice0Perm) - 1
+
+    # As long as we still have entries in the table
+    while (row >= 0 and col >= 0):
+        # If we should move left
+        if (minDir[row][col] == Dir.PREV_COL):
+            triangles.append(
+                Triangle([slice0Perm[col], slice1Perm[row], slice0Perm[col-1]]))
+            col -= 1
+        else:
+            # We move up
+            triangles.append(
+                Triangle([slice0Perm[col], slice1Perm[row], slice1Perm[row-1]]))
+            row -= 1
 
 
     # Return a list of the triangles that you constructed
