@@ -227,8 +227,8 @@ def buildTriangles( slice0, slice1 ):
     # [YOUR CODE HERE]
 
 
-    minArea = [[0 for i in range(len(slice0Perm))] for j in range(len(slice1Perm))]] # CHANGE THIS
-    minDir  = [[None for i in range(len(slice0Perm))] for j in range(len(slice1Perm))]] # CHANGE THIS
+    minArea = [[0 for i in range(len(slice0Perm))] for j in range(len(slice1Perm))] # CHANGE THIS
+    minDir  = [[None for i in range(len(slice0Perm))] for j in range(len(slice1Perm))] # CHANGE THIS
 
 
     # Fill in the minArea array
